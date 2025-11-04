@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>IEMA – Unidades</title>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsdhxp3yXYOOlULnMSz198ekS5Tm4n_Hw&defer"></script>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb;
+    --card:#f8fafc; --accent:#0f172a; --container:420px;
+    --shadow:0 6px 18px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+  .container{max-width:var(--container);margin:0 auto;padding:16px 16px 24px}
+
+  .header{padding:10px 16px}
+  .title{font-weight:700;text-align:center;margin:6px 0 2px}
+  .subtitle{color:var(--muted);text-align:center;font-size:14px;margin:0 0 8px}
+
+  .hint{margin:18px 0 10px;font-weight:600}
+  .list{display:grid;gap:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+  .card .icon{width:28px;height:28px;border-radius:8px;background:var(--card);
+    display:grid;place-items:center;font-size:16px;color:var(--ink);flex:0 0 28px}
+  .card .meta{flex:1 1 auto;min-width:0}
+  .card .name{font-weight:600;margin:0 0 2px;font-size:15px}
+  .card .type{margin:0;color:var(--muted);font-size:13px}
+  .card .chev{margin-left:auto;opacity:.55}
+
+  .screen{display:none}
+  .screen.active{display:block}
+  .topbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .back{border:none;background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:8px 10px;box-shadow:var(--shadow)}
+  .detail-card{background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:16px;box-shadow:var(--shadow)}
+  .detail-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+  .detail-head .icon{width:28px;height:28px;border-radius:8px;background:var(--card);
+    display:grid;place-items:center}
+  .detail-name{margin:0;font-weight:700}
+  .detail-type{margin:0;color:var(--muted);font-size:13px}
+  .section-title{margin:18px 0 8px;font-weight:700}
+  .p{margin:0;color:#1f2937}
+
+  .course{border:1px solid var(--line);background:#eceff3;border-radius:10px;
+    padding:10px 12px;margin-bottom:10px}
+  .course b{display:block;margin-bottom:4px}
+
+  dl{margin:0}
+  dt{font-weight:600;margin-top:10px}
+  dd{margin:4px 0 0;color:#1f2937}
+
+  .map{border:1px dashed #cbd5e1;border-radius:12px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);
+    height:160px;display:grid;place-items:center;color:#64748b;font-size:14px}
+  .address{margin:8px 0 0;color:#1f2937}
+  .list-dots{margin:6px 0 0 18px;color:#1f2937}
+  .list-dots li{margin:4px 0}
+
+  .sticky-action{position:sticky;bottom:0;background:var(--bg);padding:12px 16px}
+  .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:10px;border:1px solid #0f172a;background:var(--accent);color:#fff;
+    padding:14px 16px;font-weight:600}
+</style>
+</head>
+<body>
+
+<section id="screen-list" class="screen active">
+  <header class="header">
+    <h1 class="title">IEMA</h1>
+    <p class="subtitle">Instituto de Educação, Ciência e Tecnologia do Maranhão</p>
+  </header>
+
+  <div class="container">
+    <p class="hint">Selecione uma unidade:</p>
+    <div class="list" id="list"></div>
+
+    <p class="subtitle" style="margin-top:16px;text-align:center">
+      Acesse informações sobre cursos, localização e muito mais
+    </p>
+  </div>
+</section>
+
+<section id="screen-detail" class="screen">
+  <div class="container">
+    <div class="topbar">
+      <button class="back" id="btnBack">←</button>
+      <strong>Detalhes da Unidade</strong>
+    </div>
+
+    <article class="detail-card">
+      <div class="detail-head">
+        <span class="icon">🏫</span>
+        <div>
+          <h2 id="detailName" class="detail-name">Nome da Unidade</h2>
+          <p id="detailType" class="detail-type">Centro</p>
+        </div>
+      </div>
+
+      <h3 class="section-title">Sobre a Instituição</h3>
+      <p id="about" class="p"></p>
+
+      <h3 class="section-title">Cursos Oferecidos</h3>
+      <div id="courses"></div>
+
+      <h3 class="section-title">Detalhes da Instituição</h3>
+      <dl id="details"></dl>
+
+      <h3 class="section-title">Localização</h3>
+      <div id="map-canvas" class="map"></div> <p id="address" class="address"></p>
+      <dl style="margin-top:8px">
+        <dt>Coordenadas</dt>
+        <dd id="coords"></dd>
+      </dl>
+      <h4 class="section-title" style="margin-top:12px">Como chegar</h4>
+      <ul id="howto" class="list-dots"></ul>
+      <h4 class="section-title" style="margin-top:12px">Pontos de Referência</h4>
+      <ul id="refs" class="list-dots"></ul>
+    </article>
+
+    <div class="sticky-action">
+      <button id="btnMapLink" class="btn" type="button">📍 Ver Localização</button>
+    </div>
+  </div>
+</section>
+
+<script>
+const UNIDADES = [
+  "IEMA PLENO SÃO LUÍS – BACELAR PORTELA",
+  "IEMA PLENO SÃO LUÍS – CENTRO",
+  "IEMA PLENO SÃO LUÍS – CIDADE DE SÃO LUÍS",
+  "IEMA PLENO SÃO LUÍS – DESEMBARGADOR SARNEY",
+  "IEMA PLENO SÃO LUÍS – GONÇALVES DIAS",
+  "IEMA PLENO SÃO LUÍS – ITAQUI BACANGA",
+  "IEMA PLENO SÃO LUÍS – JARDIM AMÉRICA",
+  "IEMA PLENO SÃO LUÍS – MANOEL BECKMAN",
+  "IEMA PLENO SÃO LUÍS – MÁRIO MARTINS MEIRELES",
+  "IEMA PLENO SÃO LUÍS – MÔNICA VALE",
+  "IEMA PLENO SÃO LUÍS – NEWTON BARJONAS LOBÃO",
+  "IEMA PLENO SÃO LUÍS – RIO ANIL",
+  "IEMA PLENO SÃO LUÍS – SOUSÂNDRADE",
+  "IEMA PLENO SÃO LUÍS – TAMANCÃO"
+];
+
+// === dados individuais ===
+const DATA = {};
+UNIDADES.forEach(nome => {
+  DATA[nome] = {
+    type: "Centro",
+    about: "Informações ainda não cadastradas para esta unidade.",
+    courses: [
+      {name: "Curso 1", desc: "Descrição exemplo."},
+      {name: "Curso 2", desc: "Descrição exemplo."}
+    ],
+    hours: "Segunda à Sexta, 08:00 às 19:00",
+    modalities: ["Futsal","Vôlei"],
+    hasCourt: true,
+    lunch: "Sim, refeição completa para alunos.",
+    address: "Endereço ainda não informado.",
+    coords: "—",
+    howTo: ["Rotas de transporte em atualização."],
+    references: ["Referências próximas em atualização."]
+  }
+});
+
+// substitui os dados da unidade CENTRO pelos reais
+DATA["IEMA PLENO SÃO LUÍS – CENTRO"] = {
+  type: "Centro",
+  about: "Unidade Plena São Luís Centro, oferecendo ensino médio integrado ao técnico com foco em formação tecnológica e profissional.",
+  courses: [
+    {
+      name: "Administração",
+      desc: "Executar atividades de gestão como planejamento, organização e liderança, aplicando princípios administrativos e boas práticas de governança."
+    },
+    {
+      name: "Informática",
+      desc: "Foco em programação, sistemas operacionais e bancos de dados, capacitando o aluno a atuar na manutenção e desenvolvimento de soluções digitais."
+    },
+    {
+      name: "Redes de Computadores",
+      desc: "Manter infraestruturas de redes, realizar configuração de equipamentos e gerenciar servidores, garantindo conectividade e segurança dos sistemas."
+    },
+    {
+      name: "Desenvolvimento de Sistemas",
+      desc: "Projetar, codificar, testar e manter sistemas computacionais e aplicativos, utilizando boas práticas de engenharia de software."
+    }
+  ],
+  hours: "Segunda à Sexta, das 08:00 às 19:00",
+  modalities: ["Futsal", "Vôlei", "Natação", "Arco e Flecha", "Robótica"],
+  hasCourt: true,
+  lunch: "Sim — frango, carne bovina e carne suína.",
+  address: "Rua Osvaldo Cruz, 954, Centro — São Luís/MA",
+  coords: { lat: -2.540278, lng: -44.291667 },
+  howTo: ["Circular Radional / Deodoro"],
+  references: [
+    "Ribeira / IPASE via terminais",
+    "Instituto Estadual do Maranhão",
+    "Cohama",
+    "Maranhão Cultura e Turismo",
+    "Escola Liceu Maranhense"
+  ]
+};
+
+DATA["IEMA PLENO SÃO LUÍS – MANOEL BECKMAN"] = {
+  type: "Bequimão",
+  about:
+    "Unidade Plena do IEMA localizada no bairro Bequimão, voltada para a formação técnica e profissional em diversas áreas de gestão, tecnologia e inovação.",
+  courses: [
+    {
+      name: "Técnico em Administração",
+      desc:
+        "Capacita o estudante a atuar em processos de gestão, planejamento, organização, liderança e controle administrativo em instituições públicas e privadas."
+    },
+    {
+      name: "Técnico em Marketing",
+      desc:
+        "Forma profissionais para desenvolver estratégias de comunicação, publicidade e relacionamento com o cliente, promovendo produtos e serviços de forma eficaz."
+    },
+    {
+      name: "Técnico em Desenvolvimento de Sistemas",
+      desc:
+        "Habilita o aluno a projetar, programar, testar e manter sistemas e aplicativos, com foco em linguagens de programação, banco de dados e metodologias ágeis."
+    },
+    {
+      name: "Técnico em Informática",
+      desc:
+        "Capacita o aluno a realizar manutenção e suporte em computadores, redes e softwares, além de auxiliar na implantação de sistemas e infraestrutura tecnológica."
+    }
+  ],
+  hours: "Segunda a Sexta, das 08h às 19h",
+  modalities: ["Cursos variam de ano para ano"],
+  hasCourt: true,
+  lunch:
+    "Sim — frango, arroz, feijão, farofa, carne e macarronada.",
+  address:
+    "Rua 05, S/N – Bequimão, São Luís/MA – CEP: 65080-891 – Tel.: (98) 3214-7671",
+  coords: null,
+  howTo: ["Ônibus: linhas com destino a São Francisco e Terminal da Cohama"],
+  references: ["Academia Fit Center", "Quadra esportiva do Rubão"]
+};
+
+DATA["IEMA PLENO SÃO LUÍS – ITAQUI BACANGA"] = {
+  type: "Vila Embratel",
+  about:
+    "O Instituto Estadual de Educação, Ciência e Tecnologia do Maranhão – Unidade Itaqui Bacanga, localizado na Vila Embratel, tem como objetivo formar profissionais técnicos qualificados em áreas estratégicas como infraestrutura, tecnologia e segurança, contribuindo para o desenvolvimento regional.",
+  courses: [
+    {
+      name: "Técnico em Edificações",
+      desc:
+        "Forma profissionais aptos a elaborar e executar projetos de construção civil, fiscalizar obras e aplicar normas técnicas de segurança e sustentabilidade."
+    },
+    {
+      name: "Técnico em Eletroeletrônica",
+      desc:
+        "Capacita o aluno para atuar na instalação, manutenção e operação de sistemas e equipamentos elétricos e eletrônicos industriais e residenciais."
+    },
+    {
+      name: "Técnico em Informática para Internet",
+      desc:
+        "Desenvolve habilidades em criação de sites, manutenção de sistemas web, banco de dados e programação voltada para aplicações online."
+    },
+    {
+      name: "Técnico em Portos",
+      desc:
+        "Prepara o estudante para atuar na logística portuária, operações de embarque e desembarque, documentação e segurança de cargas e passageiros."
+    },
+    {
+      name: "Técnico em Segurança do Trabalho",
+      desc:
+        "Capacita o profissional para identificar e controlar riscos ambientais e ocupacionais, promovendo a saúde e segurança dos trabalhadores."
+    }
+  ],
+  hours: "Segunda a Sexta, das 07h00 às 17h00",
+  modalities: ["Futsal", "Vôlei", "Capoeira", "Jogos Eletrônicos", "Atletismo"],
+  hasCourt: true,
+  lunch:
+    "Sim — arroz, feijão, farofa, salada, frango, carne e fígado.",
+  address:
+    "Rua da Estrela, S/N – Vila Embratel, São Luís/MA",
+  coords: null,
+  howTo: ["Ônibus: Guapara", "Ônibus: Bacanga", "Ônibus: Anjo da Guarda", "Uber"],
+  references: ["Posto de gasolina", "Igreja Universal"]
+};
+
+DATA["IEMA PLENO SÃO LUÍS – DESEMBARGADOR SARNEY"] = {
+  type: "São Francisco",
+  about:
+    "O Instituto Estadual de Educação, Ciência e Tecnologia do Maranhão – Unidade Desembargador Sarney, localizado no bairro São Francisco, oferece cursos técnicos nas áreas de tecnologia, estética e serviços jurídicos, promovendo formação profissional de excelência e integração com o mercado de trabalho.",
+  courses: [
+    {
+      name: "Técnico em Informática",
+      desc:
+        "Capacita o aluno a realizar manutenção e suporte em computadores, redes e softwares, além de atuar no desenvolvimento de soluções tecnológicas."
+    },
+    {
+      name: "Técnico em Estética",
+      desc:
+        "Forma profissionais para atuar em cuidados com a pele, corpo e cabelo, utilizando técnicas e procedimentos voltados ao bem-estar e à beleza."
+    },
+    {
+      name: "Técnico em Serviços Jurídicos",
+      desc:
+        "Prepara o estudante para auxiliar em rotinas administrativas e jurídicas, como elaboração de documentos legais e acompanhamento de processos."
+    }
+  ],
+  hours: "Segunda a Sexta, das 09h00 às 17h00",
+  modalities: [],
+  hasCourt: true,
+  lunch: "Sim — refeição oferecida aos alunos durante o período de aulas.",
+  address:
+    "Rua Hemetério Leitão, 173, Bairro São Francisco – CEP: 65076-420 – São Luís/MA",
+  coords: { lat: -2.51255, lng: -44.30537 },
+  howTo: [
+    "🚗 De carro ou transporte por aplicativo: siga em direção ao bairro São Francisco. O IEMA está localizado próximo à Avenida Castelo Branco e à Rua das Paparaubas. Você pode usar aplicativos de navegação para traçar a melhor rota a partir da sua localização.",
+    "🚌 De transporte público: linhas que passam pela região do São Francisco incluem:",
+    "T064 Jardim Tropical / São Francisco",
+    "T062 Socorrão 2 / Rodoviária",
+    "T061 Santa Clara / João Paulo",
+    "956 Raposa / Holandeses"
+  ],
+  references: [
+    "Avenida Castelo Branco — importante via próxima ao IEMA.",
+    "Rua das Paparaubas — área adjacente à unidade.",
+    "Faculdade Anhanguera — instituição parceira que realiza visitas técnicas com alunos do IEMA."
+  ]
+};
+
+DATA["IEMA PLENO SÃO LUÍS – SOUSÂNDRADE"] = {
+  type: "Lira",
+  about:
+    "O IEMA Pleno São Luís – Unidade Sousândrade integra o Instituto Estadual de Educação, Ciência e Tecnologia do Maranhão (IEMA) e oferece ensino técnico em tempo integral, unindo formação profissional e acadêmica. A unidade se destaca pela infraestrutura moderna, foco na prática e incentivo às atividades culturais e esportivas.",
+  courses: [
+    {
+      name: "Técnico em Informática",
+      desc:
+        "Capacita o estudante a atuar com manutenção de computadores, redes e sistemas, além de desenvolvimento e suporte de software."
+    },
+    {
+      name: "Técnico em Desenvolvimento de Sistemas",
+      desc:
+        "Forma profissionais capazes de projetar, desenvolver e manter sistemas computacionais e aplicativos para diferentes plataformas."
+    },
+    {
+      name: "Técnico em Administração",
+      desc:
+        "Prepara o aluno para desempenhar funções administrativas e gerenciais, com foco em planejamento, organização e liderança."
+    },
+    {
+      name: "Técnico em Gerência e Saúde",
+      desc:
+        "Capacita o profissional a apoiar a gestão e o planejamento de instituições de saúde, promovendo qualidade e eficiência nos serviços."
+    },
+    {
+      name: "Técnico em Marketing Digital",
+      desc:
+        "Forma profissionais para planejar e executar estratégias de comunicação, publicidade e vendas no ambiente digital."
+    }
+  ],
+  hours: "Segunda a Sexta, das 07h00 às 17h00",
+  modalities: ["Futsal", "Vôlei"],
+  hasCourt: true,
+  lunch: "Almoço servido diariamente às 12h.",
+  address:
+    "Praça São Roque, nº 01, Bairro Lira – CEP: 65026-240 – São Luís/MA",
+  coords: null,
+  howTo: [
+    "Para chegar ao IEMA Pleno Sousândrade, vá até o Bairro Lira em São Luís.",
+    "A unidade está localizada na Praça São Roque, nº 01.",
+    "Use qualquer ônibus que passe pelo Bairro Lira ou pelo centro de São Luís e peça para descer próximo à Praça São Roque.",
+    "A unidade fica próxima a pontos de referência locais do Bairro Lira."
+  ],
+  references: [
+    "Praça São Roque – principal ponto de referência do Bairro Lira.",
+    "Bairro Lira – região central de São Luís onde a unidade está localizada."
+  ],
+  extraCourses: [
+    "Recursos Naturais",
+    "Produção Cultural e Design",
+    "Turismo, Lazer e Eventos"
+  ]
+};
+
+DATA["IEMA PLENO SÃO LUÍS – JARDIM AMÉRICA"] = {
+  type: "Jardim América",
+  about:
+    "O Instituto Estadual de Educação, Ciência e Tecnologia do Maranhão – Unidade Plena Jardim América oferece ensino médio em tempo integral, integrado à formação técnica profissional. A instituição busca unir inovação, tecnologia e cidadania, formando jovens preparados para o mercado de trabalho e para o ensino superior.",
+  courses: [
+    {
+      name: "Técnico em Informática 💻",
+      desc:
+        "Forma profissionais capazes de desenvolver, instalar e manter sistemas computacionais. O aluno aprende lógica de programação, redes, banco de dados e criação de aplicativos e sites."
+    },
+    {
+      name: "Técnico em Logística 📦",
+      desc:
+        "Ensina como planejar e coordenar o transporte, armazenamento e distribuição de produtos. O aluno aprende gestão de estoques, cadeia de suprimentos e controle de qualidade."
+    },
+    {
+      name: "Técnico em Meio Ambiente 🌱",
+      desc:
+        "Prepara o estudante para atuar na preservação ambiental, controle de poluição e uso sustentável dos recursos naturais. Inclui estudos de ecologia, legislação ambiental e sustentabilidade."
+    },
+    {
+      name: "Técnico em Serviços Jurídicos ⚖️",
+      desc:
+        "Forma profissionais que auxiliam em escritórios de advocacia e órgãos públicos. O aluno aprende noções de Direito, processos judiciais, ética e documentação jurídica."
+    },
+    {
+      name: "Técnico em Administração 📊",
+      desc:
+        "Desenvolve habilidades em gestão de empresas, finanças, marketing e recursos humanos. O aluno aprende a planejar, organizar e coordenar atividades administrativas."
+    }
+  ],
+  hours: "Segunda a Sexta, das 07h30 às 17h30",
+  modalities: [
+    "Futebol",
+    "Futsal",
+    "Vôlei",
+    "Basquete",
+    "Handebol",
+    "Atletismo",
+    "Dança",
+    "Ginástica"
+  ],
+  hasCourt: true,
+  lunch:
+    "Sim — servido entre 11h30 e 13h00, com cardápio supervisionado por nutricionistas e alimentação gratuita aos alunos.",
+  address:
+    "Av. 2, nº 200 – Jardim América, São Luís – MA, CEP 65066-410",
+  coords: null,
+  howTo: [
+    "Ônibus: Jardim América / Terminal Cohab",
+    "Ônibus: Jardim América / Centro",
+    "Ônibus: Jardim América / Terminal São Cristóvão",
+    "Acesso principal pela Avenida 2, próximo à Unidade de Saúde Jardim América"
+  ],
+  references: [
+    "Unidade de Saúde Jardim América",
+    "Bairro Jardim América – São Luís/MA"
+  ]
+};
+
+
+// === popula lista ===
+const listEl = document.getElementById("list");
+UNIDADES.forEach(nome=>{
+  const btn = document.createElement("button");
+  btn.className="card";
+  btn.dataset.key = nome;
+  btn.innerHTML = `
+    <span class="icon">🏫</span>
+    <span class="meta">
+      <p class="name">${nome}</p>
+      <p class="type">${DATA[nome].type}</p>
+    </span>
+    <span class="chev">→</span>
+  `;
+  listEl.appendChild(btn);
+});
+
+// === renderização ===
+const screenList=document.getElementById("screen-list");
+const screenDetail=document.getElementById("screen-detail");
+const back=document.getElementById("btnBack");
+const elName=document.getElementById("detailName");
+const elType=document.getElementById("detailType");
+const elAbout=document.getElementById("about");
+const elCourses=document.getElementById("courses");
+const elDetails=document.getElementById("details");
+const elAddr=document.getElementById("address");
+const elCoords=document.getElementById("coords");
+const elHow=document.getElementById("howto");
+const elRefs=document.getElementById("refs");
+const elMapCanvas = document.getElementById("map-canvas");
+const elMapLink = document.getElementById("btnMapLink");
+
+// Função para iniciar e renderizar o mapa
+function initMap(coordinates) {
+  if (coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
+    elMapCanvas.innerHTML = "";
+    const map = new google.maps.Map(elMapCanvas, {
+      center: coordinates,
+      zoom: 17, 
+      mapTypeId: 'roadmap',
+      disableDefaultUI: true, 
+      zoomControl: true
+    });
+    new google.maps.Marker({
+      position: coordinates,
+      map: map,
+    });
+  } else {
+    elMapCanvas.innerHTML = "Mapa de localização indisponível.";
+  }
+}
+
+function renderDetail(key){
+  const data=DATA[key];
+  elName.textContent=key;
+  elType.textContent=data.type||"—";
+  elAbout.textContent=data.about||"—";
+  elCourses.innerHTML="";
+  data.courses.forEach(c=>{
+    const d=document.createElement("div");
+    d.className="course";
+    d.innerHTML=`<b>${c.name}</b><span>${c.desc}</span>`;
+    elCourses.appendChild(d);
+  });
+  elDetails.innerHTML="";
+  [ ["Horário de funcionamento",data.hours],
+    ["Modalidades oferecidas",data.modalities.join(" • ")],
+    ["Possui quadra?",data.hasCourt?"Sim":"Não"],
+    ["Almoço",data.lunch]
+  ].forEach(([k,v])=>{
+    const dt=document.createElement("dt");dt.textContent=k;
+    const dd=document.createElement("dd");dd.textContent=v;
+    elDetails.append(dt,dd);
+  });
+  elAddr.textContent="Endereço: "+data.address;
+  elCoords.textContent = data.coords 
+    ? `Lat: ${data.coords.lat}, Lng: ${data.coords.lng}` 
+    : "Coordenadas não informadas";
+  elHow.innerHTML=data.howTo.map(i=>`<li>${i}</li>`).join("");
+  elRefs.innerHTML=data.references.map(i=>`<li>${i}</li>`).join("");
+  initMap(data.coords);
+  elMapLink.dataset.address = data.address || key; 
+}
+
+document.addEventListener("click",e=>{
+  const card=e.target.closest(".card");
+  if(card){
+    renderDetail(card.dataset.key);
+    screenList.classList.remove("active");
+    screenDetail.classList.add("active");
+    window.scrollTo({top:0,behavior:"instant"});
+  }
+});
+back.addEventListener("click",()=>{
+  screenDetail.classList.remove("active");
+  screenList.classList.add("active");
+  window.scrollTo({top:0,behavior:"instant"});
+});
+
+elMapLink.addEventListener("click", (e) => {
+  const address = e.currentTarget.dataset.address;
+  if (address) {
+    const url = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
+    window.open(url, "_blank");
+  }
+});
+</script>
+</body>
+</html>

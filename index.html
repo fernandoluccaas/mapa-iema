@@ -430,7 +430,7 @@ DATA["IEMA PLENO SÃO LUÍS – JARDIM AMÉRICA"] = {
     "Sim — servido entre 11h30 e 13h00, com cardápio supervisionado por nutricionistas e alimentação gratuita aos alunos.",
   address:
     "Av. 2, nº 200 – Jardim América, São Luís – MA, CEP 65066-410",
-  coords: { lat: -2.58694, lng},
+  coords: { lat: -2.58694, lng: -44.25687 },
   howTo: [
     "Ônibus: Jardim América / Terminal Cohab",
     "Ônibus: Jardim América / Centro",
@@ -589,11 +589,11 @@ back.addEventListener("click",()=>{
 });
 
 elMapLink.addEventListener("click", (e) => {
-  const address = e.currentTarget.dataset.address;
-  if (address) {
-    const url = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
-    window.open(url, "_blank");
-  }
+  const address = e.currentTarget.dataset.address;
+  if (address) {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    window.open(url, "_blank");
+  }
 });
 </script>
 </body>

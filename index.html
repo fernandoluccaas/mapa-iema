@@ -166,7 +166,43 @@ UNIDADES.forEach(nome => {
   }
 });
 
-// substitui os dados da unidade CENTRO pelos reais
+// DADOS REAIS DAS UNIDADES
+
+DATA["IEMA PLENO SÃO LUÍS – BACELAR PORTELA"] = {
+  type: "Vila Ivar Saldanha",
+  about: "Unidade Plena São Luís Bacelar Portela, oferecendo ensino médio integrado ao técnico com foco em formação tecnológica e profissional.",
+  courses: [
+    {
+      name: "Técnico em Meio Ambiente 🌱",
+      desc: "Capacita o estudante para identificar, avaliar e propor soluções para problemas ambientais. Abrange temas como gestão de resíduos, saneamento básico, sustentabilidade e preservação dos recursos naturais. O técnico pode trabalhar em empresas públicas, ONGs, indústrias e projetos ambientais."
+    },
+    {
+      name: "Técnico em Informática 💻",
+      desc: "Forma profissionais capazes de desenvolver e manter sistemas, sites e aplicativos. O aluno aprende lógica de programação, banco de dados, redes de computadores, hardware e linguagens como Java e Python. Ao concluir, pode atuar em empresas de tecnologia, manutenção de computadores ou até empreender na área."
+    },
+    {
+      name: "Técnico em Logística 📦",
+      desc: "Ensina a planejar, executar e controlar processos de armazenagem, transporte, compras e distribuição de produtos. O aluno aprende sobre cadeia de suprimentos, controle de estoque e rotas de entrega. Pode atuar em centros de distribuição, portos, empresas de transporte e comércio."
+    },
+    {
+      name: "Técnico em Eletromecânica 🔧",
+      desc: "Prepara o aluno para atuar com sistemas elétricos e mecânicos, integrando conhecimentos de eletricidade, mecânica, automação e manutenção industrial. O profissional pode trabalhar em indústrias, concessionárias de energia, manutenção de máquinas e sistemas automatizados."
+    }
+  ],
+  hours: "Segunda à Sexta, das 07:30 às 17:00",
+  modalities: ["Futsal", "Vôlei", "Natação", "Handebol", "Atletismo", "Arco e Flecha", "Robótica"],
+  hasCourt: true,
+  lunch: "Sim — frango, carne bovina e carne suína.",
+  address: "R. Jorge Damous, 120J - Vila Ivar Saldanha, São Luís - MA, 65040-770",
+  coords: { lat: -2.54301, lng: -44.26526 },
+  howTo: ["Linhas que passam pela Praça Deodoro, Rua dos Afogados e João Lisboa."],
+  references: [
+    "Ao lado do Centro Educa Mais Coelho Neto",
+    "Rua do Hemomar",
+    "Proximo ao hospital Presidente Vargas",
+  ]
+};
+
 DATA["IEMA PLENO SÃO LUÍS – CENTRO"] = {
   type: "Centro",
   about: "Unidade Plena São Luís Centro, oferecendo ensino médio integrado ao técnico com foco em formação tecnológica e profissional.",
@@ -589,11 +625,11 @@ back.addEventListener("click",()=>{
 });
 
 elMapLink.addEventListener("click", (e) => {
-  const address = e.currentTarget.dataset.address;
-  if (address) {
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    window.open(url, "_blank");
-  }
+  const address = e.currentTarget.dataset.address;
+  if (address) {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    window.open(url, "_blank");
+  }
 });
 </script>
 </body>

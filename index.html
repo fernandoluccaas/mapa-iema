@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>IEMA – Unidades</title>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsdhxp3yXYOOlULnMSz198ekS5Tm4n_Hw&defer"></script>
 <style>
   :root{
     --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb;
@@ -257,24 +256,19 @@ const elMapLink = document.getElementById("btnMapLink");
 // Função para iniciar e renderizar o mapa
 function initMap(coordinates) {
   if (coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
-    elMapCanvas.innerHTML = "";
-    try {
-        const map = new google.maps.Map(elMapCanvas, {
-        center: coordinates,
-        zoom: 17, 
-        mapTypeId: 'roadmap',
-        disableDefaultUI: true, 
-        zoomControl: true
-        });
-        new google.maps.Marker({
-        position: coordinates,
-        map: map,
-        title: "IEMA Sousândrade"
-        });
-    } catch (e) {
-        elMapCanvas.innerHTML = "Erro ao carregar o mapa. Verifique a chave API.";
-        console.error("Erro Maps:", e);
-    }
+    // Monta a URL do mapa embed usando as coordenadas
+    const mapUrl = `https://maps.google.com/maps?q=${coordinates.lat},${coordinates.lng}&hl=pt-br&z=16&output=embed`;
+    
+    // Injeta o iframe dentro da div do mapa
+    elMapCanvas.innerHTML = `
+      <iframe 
+        width="100%" 
+        height="100%" 
+        frameborder="0" 
+        style="border:0; border-radius: 12px;" 
+        src="${mapUrl}" 
+        allowfullscreen>
+      </iframe>`;
   } else {
     elMapCanvas.innerHTML = "<p style='padding:20px;text-align:center'>Mapa de localização indisponível.</p>";
   }

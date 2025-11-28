@@ -7,21 +7,43 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsdhxp3yXYOOlULnMSz198ekS5Tm4n_Hw&defer"></script>
 <style>
   :root{
-    --bg:#ffffff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb;
+    --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb;
     --card:#f8fafc; --accent:#0f172a; --container:420px;
     --shadow:0 6px 18px rgba(15,23,42,.06);
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
-  .container{max-width:var(--container);margin:0 auto;padding:16px 16px 24px}
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+        url('fundo.jpeg'); 
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(8px) brightness(1.1); 
+    transform: scale(1.1);
+  }
+
+  html,body{
+    margin:0;
+    background: transparent;
+    color:var(--ink);
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+    min-height: 100vh;
+  }
+  .container{max-width:var(--container);margin:0 auto;padding:16px 16px 24px; position: relative; z-index: 1;}
 
   .header{padding:10px 16px}
-  .title{font-weight:700;text-align:center;margin:6px 0 2px}
+  .title{font-weight:700;text-align:center;margin:6px 0 2px; text-shadow: 0 1px 2px rgba(255,255,255,0.8);}
   .destaque1{color: blue;}
   .destaque2{color: red;}
-  .subtitle{color:var(--muted);text-align:center;font-size:14px;margin:0 0 8px}
-  .hint{margin:18px 0 10px;font-weight:600}
+  .subtitle{color:var(--muted);text-align:center;font-size:14px;margin:0 0 8px; font-weight: 500; text-shadow: 0 1px 2px rgba(255,255,255,0.8);}
+  .hint{margin:18px 0 10px;font-weight:600; text-shadow: 0 1px 2px rgba(255,255,255,0.8);}
   .list{display:grid;gap:12px}
   .card{background:#fff;border:1px solid var(--line);border-radius:12px;
     padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
@@ -36,7 +58,7 @@
   .screen.active{display:block}
   .topbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
   .back{border:none;background:#fff;border:1px solid var(--line);border-radius:12px;
-    padding:8px 10px;box-shadow:var(--shadow)}
+    padding:8px 10px;box-shadow:var(--shadow); cursor: pointer;}
   .detail-card{background:#fff;border:1px solid var(--line);border-radius:16px;
     padding:16px;box-shadow:var(--shadow)}
   .detail-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
@@ -56,15 +78,15 @@
   dd{margin:4px 0 0;color:#1f2937}
 
   .map{border:1px dashed #cbd5e1;border-radius:12px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);
-    height:160px;display:grid;place-items:center;color:#64748b;font-size:14px}
+    height:160px;display:grid;place-items:center;color:#64748b;font-size:14px; overflow: hidden;}
   .address{margin:8px 0 0;color:#1f2937}
   .list-dots{margin:6px 0 0 18px;color:#1f2937}
   .list-dots li{margin:4px 0}
 
-  .sticky-action{position:sticky;bottom:0;background:var(--bg);padding:12px 16px}
+  .sticky-action{position:sticky;bottom:0;background:#ffffff;padding:12px 16px; border-top: 1px solid var(--line); box-shadow: 0 -4px 12px rgba(0,0,0,0.05);}
   .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;
     border-radius:10px;border:1px solid #0f172a;background:var(--accent);color:#fff;
-    padding:14px 16px;font-weight:600}
+    padding:14px 16px;font-weight:600; cursor: pointer;}
 </style>
 </head>
 <body>
@@ -79,7 +101,7 @@
     <p class="hint">Clique para obter mais informações de nosso IP SOUSÂNDRADE</p>
     <div class="list" id="list"></div>
 
-    <p class="subtitle" style="margin-top:16px;text-align:center">
+    <p class="subtitle" style="margin-top:16px;text-align:center; font-weight: 600;">
       Acesse informações sobre cursos, localização e muito mais
     </p>
   </div>
@@ -89,7 +111,7 @@
   <div class="container">
     <div class="topbar">
       <button class="back" id="btnBack">←</button>
-      <strong>Detalhes da Unidade</strong>
+      <strong style="text-shadow: 0 1px 1px rgba(255,255,255,0.9);">Detalhes da Unidade</strong>
     </div>
 
     <article class="detail-card">
@@ -122,8 +144,10 @@
       <ul id="refs" class="list-dots"></ul>
     </article>
 
-    <div class="sticky-action">
-      <button id="btnMapLink" class="btn" type="button">📍 Ver Localização</button>
+  </div>
+  <div class="sticky-action">
+    <div class="container" style="padding: 0;">
+        <button id="btnMapLink" class="btn" type="button">📍 Ver Localização no Maps</button>
     </div>
   </div>
 </section>
@@ -139,75 +163,60 @@ UNIDADES.forEach(nome => {
   DATA[nome] = {
     type: "Centro",
     about: "Informações ainda não cadastradas para esta unidade.",
-    courses: [
-      {name: "Curso 1", desc: "Descrição exemplo."},
-      {name: "Curso 2", desc: "Descrição exemplo."}
-    ],
-    hours: "Segunda à Sexta, 08:00 às 19:00",
-    modalities: ["Futsal","Vôlei"],
-    hasCourt: true,
-    lunch: "Sim, refeição completa para alunos.",
+    courses: [],
+    hours: "—",
+    modalities: [],
+    hasCourt: false,
+    lunch: "—",
     address: "Endereço ainda não informado.",
-    coords: "—",
-    howTo: ["Rotas de transporte em atualização."],
-    references: ["Referências próximas em atualização."]
+    coords: null,
+    howTo: [],
+    references: []
   }
 });
 
 // DADOS REAIS DAS UNIDADES
-
 DATA["IEMA PLENO SÃO LUÍS – SOUSÂNDRADE"] = {
-  type: "Lira",
+  type: "Bairro Lira",
   about:
     "O IEMA Pleno São Luís – Unidade Sousândrade integra o Instituto Estadual de Educação, Ciência e Tecnologia do Maranhão (IEMA) e oferece ensino técnico em tempo integral, unindo formação profissional e acadêmica. A unidade se destaca pela infraestrutura moderna, foco na prática e incentivo às atividades culturais e esportivas.",
   courses: [
     {
       name: "Técnico em Informática",
-      desc:
-        "Capacita o estudante a atuar com manutenção de computadores, redes e sistemas, além de desenvolvimento e suporte de software."
+      desc: "Capacita o estudante a atuar com manutenção de computadores, redes e sistemas, além de desenvolvimento e suporte de software."
     },
     {
       name: "Técnico em Desenvolvimento de Sistemas",
-      desc:
-        "Forma profissionais capazes de projetar, desenvolver e manter sistemas computacionais e aplicativos para diferentes plataformas."
+      desc: "Forma profissionais capazes de projetar, desenvolver e manter sistemas computacionais e aplicativos para diferentes plataformas."
     },
     {
       name: "Técnico em Administração",
-      desc:
-        "Prepara o aluno para desempenhar funções administrativas e gerenciais, com foco em planejamento, organização e liderança."
+      desc: "Prepara o aluno para desempenhar funções administrativas e gerenciais, com foco em planejamento, organização e liderança."
     },
     {
       name: "Técnico em Gerência e Saúde",
-      desc:
-        "Capacita o profissional a apoiar a gestão e o planejamento de instituições de saúde, promovendo qualidade e eficiência nos serviços."
+      desc: "Capacita o profissional a apoiar a gestão e o planejamento de instituições de saúde, promovendo qualidade e eficiência nos serviços."
     },
     {
       name: "Técnico em Marketing Digital",
-      desc:
-        "Forma profissionais para planejar e executar estratégias de comunicação, publicidade e vendas no ambiente digital."
+      desc: "Forma profissionais para planejar e executar estratégias de comunicação, publicidade e vendas no ambiente digital."
     }
   ],
   hours: "Segunda a Sexta, das 07h00 às 17h00",
-  modalities: ["Futsal", "Vôlei"],
+  modalities: ["Futsal", "Vôlei", "Handebol", "Basquete"],
   hasCourt: true,
-  lunch: "Almoço servido diariamente às 12h.",
-  address:
-    "Praça São Roque, nº 01, Bairro Lira – CEP: 65026-240 – São Luís/MA",
-  coords: null,
+  lunch: "Almoço servido diariamente (gratuitamente para alunos).",
+  address: "Praça São Roque, nº 01, Bairro Lira – CEP: 65026-240 – São Luís/MA",
+  coords: { lat: -2.54067, lng: -44.29347 }, 
   howTo: [
-    "Para chegar ao IEMA Pleno Sousândrade, vá até o Bairro Lira em São Luís.",
-    "A unidade está localizada na Praça São Roque, nº 01.",
-    "Use qualquer ônibus que passe pelo Bairro Lira ou pelo centro de São Luís e peça para descer próximo à Praça São Roque.",
-    "A unidade fica próxima a pontos de referência locais do Bairro Lira."
+    "A unidade está localizada na Praça São Roque, nº 01, no Bairro Lira.",
+    "Linhas de ônibus que circulam pelo Centro ou Bairro Lira (ex: linhas que passam pela Rua das Cajazeiras ou Madre Deus) geralmente deixam próximo.",
+    "Pedir para descer próximo à antiga escola Sousândrade ou Praça São Roque."
   ],
   references: [
-    "Praça São Roque – principal ponto de referência do Bairro Lira.",
-    "Bairro Lira – região central de São Luís onde a unidade está localizada."
-  ],
-  extraCourses: [
-    "Recursos Naturais",
-    "Produção Cultural e Design",
-    "Turismo, Lazer e Eventos"
+    "Praça São Roque (a unidade fica em frente).",
+    "Próximo à Igreja de São Roque.",
+    "Região central, próxima ao bairro Madre Deus."
   ]
 };
 
@@ -249,19 +258,25 @@ const elMapLink = document.getElementById("btnMapLink");
 function initMap(coordinates) {
   if (coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
     elMapCanvas.innerHTML = "";
-    const map = new google.maps.Map(elMapCanvas, {
-      center: coordinates,
-      zoom: 17, 
-      mapTypeId: 'roadmap',
-      disableDefaultUI: true, 
-      zoomControl: true
-    });
-    new google.maps.Marker({
-      position: coordinates,
-      map: map,
-    });
+    try {
+        const map = new google.maps.Map(elMapCanvas, {
+        center: coordinates,
+        zoom: 17, 
+        mapTypeId: 'roadmap',
+        disableDefaultUI: true, 
+        zoomControl: true
+        });
+        new google.maps.Marker({
+        position: coordinates,
+        map: map,
+        title: "IEMA Sousândrade"
+        });
+    } catch (e) {
+        elMapCanvas.innerHTML = "Erro ao carregar o mapa. Verifique a chave API.";
+        console.error("Erro Maps:", e);
+    }
   } else {
-    elMapCanvas.innerHTML = "Mapa de localização indisponível.";
+    elMapCanvas.innerHTML = "<p style='padding:20px;text-align:center'>Mapa de localização indisponível.</p>";
   }
 }
 
@@ -271,30 +286,40 @@ function renderDetail(key){
   elType.textContent=data.type||"—";
   elAbout.textContent=data.about||"—";
   elCourses.innerHTML="";
-  data.courses.forEach(c=>{
-    const d=document.createElement("div");
-    d.className="course";
-    d.innerHTML=`<b>${c.name}</b><span>${c.desc}</span>`;
-    elCourses.appendChild(d);
-  });
+  if(data.courses.length > 0){
+    data.courses.forEach(c=>{
+        const d=document.createElement("div");
+        d.className="course";
+        d.innerHTML=`<b>${c.name}</b><span>${c.desc}</span>`;
+        elCourses.appendChild(d);
+    });
+  } else {
+      elCourses.innerHTML = "<p class='type'>Nenhum curso listado.</p>";
+  }
+
   elDetails.innerHTML="";
   [ ["Horário de funcionamento",data.hours],
-    ["Modalidades oferecidas",data.modalities.join(" • ")],
-    ["Possui quadra?",data.hasCourt?"Sim":"Não"],
-    ["Almoço",data.lunch]
+    ["Modalidades esportivas", data.modalities.length ? data.modalities.join(", ") : "—"],
+    ["Possui quadra poliesportiva?",data.hasCourt?"Sim":"Não"],
+    ["Almoço escolar",data.lunch]
   ].forEach(([k,v])=>{
     const dt=document.createElement("dt");dt.textContent=k;
     const dd=document.createElement("dd");dd.textContent=v;
     elDetails.append(dt,dd);
   });
-  elAddr.textContent="Endereço: "+data.address;
+  elAddr.textContent=data.address;
   elCoords.textContent = data.coords 
-    ? `Lat: ${data.coords.lat}, Lng: ${data.coords.lng}` 
+    ? `${data.coords.lat.toFixed(6)}, ${data.coords.lng.toFixed(6)}` 
     : "Coordenadas não informadas";
   elHow.innerHTML=data.howTo.map(i=>`<li>${i}</li>`).join("");
   elRefs.innerHTML=data.references.map(i=>`<li>${i}</li>`).join("");
+  
   initMap(data.coords);
-  elMapLink.dataset.address = data.address || key; 
+  let mapQuery = data.address;
+  if(data.coords) {
+      mapQuery = `${data.coords.lat},${data.coords.lng}`;
+  }
+  elMapLink.dataset.query = mapQuery || key; 
 }
 
 document.addEventListener("click",e=>{
@@ -313,9 +338,9 @@ back.addEventListener("click",()=>{
 });
 
 elMapLink.addEventListener("click", (e) => {
-  const address = e.currentTarget.dataset.address;
-  if (address) {
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const query = e.currentTarget.dataset.query;
+  if (query) {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     window.open(url, "_blank");
   }
 });
